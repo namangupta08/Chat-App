@@ -1,5 +1,7 @@
 import { Button } from '@/components/ui/button'
 import React from 'react'
+import Background from '@/assets/login2.png'
+import Victory from '@/assets/victory.svg'
 
 function Auth() {
   return (
@@ -10,7 +12,16 @@ function Auth() {
             <div className='flex flex-col items-center justify-center'>
                 <div className='flex items-center justify-center'>
                     <h1 className='text-5xl font-bold md:text-6xl'>WELCOME</h1>
+                    <img src={Victory} alt='Victory emoji' className='h-[100px]'/>
                 </div>
+
+                <p className='font-medium text-center'>
+                  Fill in the details to get started with the best chat app
+                </p>
+            </div>
+
+            <div className='flex items-center justify-center w-full'>
+
             </div>
           </div>
             
