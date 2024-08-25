@@ -8,6 +8,10 @@ const userSchema = new mongoose.Schema({
         required:[true , "Email is required."],
         unique:true,
     },
+    password: {
+        type: String,
+        required: [true, "Password is required."]
+    },
     firstName:{
         type:String,
         required:false,
@@ -27,6 +31,7 @@ const userSchema = new mongoose.Schema({
     profileSetup:{
         type:Boolean,
         required:false,
+        default:false,
     }
 
 });
