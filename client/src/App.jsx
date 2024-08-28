@@ -18,7 +18,11 @@ function App() {
       try {
          const response = await apiClient.get(GET_USER_INFO , {withCredentials:true})
          console.log(response)
-      } catch (error) {
+         if(response.status === 201);
+         
+      } 
+      
+      catch (error) {
         console.log(error)
       }
     }
