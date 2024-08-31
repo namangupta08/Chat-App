@@ -17,13 +17,20 @@ function App() {
     const getUserData = async () => {
       try {
          const response = await apiClient.get(GET_USER_INFO , {withCredentials:true})
-         console.log(response)
-         if(response.status === 201);
-         
+         //console.log(response)
+          if(response.status === 200 && response.data.id){
+            setUserInfo(response.data)
+          }else{
+            setUserInfo(undefined)
+          }
+          console.log({response});
       } 
       
-      catch (error) {
+      catch(error){
         console.log(error)
+        setUserInfo(undefined)
+      }finally{
+        setLoading(false);
       }
     }
 
