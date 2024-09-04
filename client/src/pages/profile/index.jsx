@@ -1,5 +1,5 @@
 import { useAppStore } from "@/store";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
@@ -7,6 +7,9 @@ import { colors, getColor } from "@/lib/utils";
 import { FaTrash, FaPlus } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { apiClient } from "@/lib/api-client";
+import { ADD_PROFILE_IMAGE_ROUTE, UPDATE_PROFILE_ROUTE } from "@/utils/constants";
 
 function Profile() {
   const navigate = useNavigate();
@@ -16,15 +19,83 @@ function Profile() {
   const [image, setImage] = useState(null);
   const [hovered, setHovered] = useState(false);
   const [selectedColor, setSelectedColor] = useState(0);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (userInfo.profileSetup) {
+      setFirstName(userInfo.firstName);
+      setLastName(userInfo.lastName);
+      setSelectedColor(userInfo.color);
+    }
+  }, [userInfo]);
+
+  const validateProfile = () => {
+    if (!firstName) {
+      toast.error("First Name is required");
+      return false;
+    }
+    if (!lastName) {
+      toast.error("Last Name is required");
+      return false;
+    }
+    return true;
+  };
 
   const saveChanges = async () => {
     // Save changes logic here
+    if (validateProfile()) {
+      try {
+        const response = await apiClient.post(
+          UPDATE_PROFILE_ROUTE,
+          { firstName, lastName, color: selectedColor },
+          { withCredentials: true }
+        );
+
+        if (response.status === 200 && response.data) {
+          setUserInfo({ ...response.data });
+          toast.success("Profile Updated successfully");
+          navigate("/chat");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
+
+  const handleNavigate = () => {
+    if (userInfo.profileSetup) {
+      navigate("/chat");
+    } else {
+      toast.error("Please Setup profile");
+    }
+  };
+
+  const handleFileInputClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleImageChange = async (event) => {
+    const file = event.target.files[0];
+    console.log(file)
+    if(file){
+      const formData = new formData();
+      formData.append("profile-image" , file);
+      const response = await apiClient.post(ADD_PROFILE_IMAGE_ROUTE , formData , {withCredentials:true})
+      if(response.status === 200 && response.data.image){
+        setUserInfo({...userInfo , image:response.data.image})
+        toast.success("Image updated successfully")
+      }
+
+      
+    }
+  };
+
+  const handleDeleteImage = async () => {};
 
   return (
     <div className="bg-[#1b1c24] h-[100vh] flex items-center justify-center flex-col gap-10">
       <div className="flex flex-col gap-10 w-[80vw] md:w-max">
-        <div>
+        <div onClick={handleNavigate}>
           <IoArrowBack className="text-4xl lg:text-6xl text-white/90 cursor-pointer" />
         </div>
         {/* Grid layout updated to stack profile image and form fields */}
@@ -54,7 +125,10 @@ function Profile() {
               )}
             </Avatar>
             {hovered && (
-              <div className="absolute inset-0 flex justify-center items-center bg-black/50 rounded-full cursor-pointer ring-fuchsia-50">
+              <div
+                className="absolute inset-0 flex justify-center items-center bg-black/50 rounded-full cursor-pointer ring-fuchsia-50"
+                onClick={image ? handleDeleteImage : handleFileInputClick}
+              >
                 {image ? (
                   <FaTrash className="text-white text-3xl cursor-pointer" />
                 ) : (
@@ -62,6 +136,14 @@ function Profile() {
                 )}
               </div>
             )}
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleImageChange}
+              name="profile-image"
+              accept=".png , .jpg , .jpeg , .svg , .webp"
+            />
           </div>
           {/* Updated layout to stack input fields vertically */}
           <div className="flex flex-col gap-4 text-white items-center justify-center">
@@ -114,10 +196,12 @@ function Profile() {
         </div>
 
         <div className="w-full">
-          <Button 
-          className="h-16 w-full bg-purple-700 hover:bg-purple-900 transition-all duration-300 rounded-2xl"
-          onClick={saveChanges}
-          >Save Changes</Button>
+          <Button
+            className="h-16 w-full bg-purple-700 hover:bg-purple-900 transition-all duration-300 rounded-2xl"
+            onClick={saveChanges}
+          >
+            Save Changes
+          </Button>
         </div>
       </div>
     </div>
