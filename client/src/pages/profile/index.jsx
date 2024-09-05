@@ -86,7 +86,12 @@ function Profile() {
         toast.success("Image updated successfully")
       }
 
-      
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImage(reader.result)
+      }
+
+      reader.readAsDataURL(file);
     }
   };
 

@@ -101,18 +101,99 @@ export const Login = async (req,res,next) => {
 
 export const getUserInfo = async (req,res,next) => {
     try {
-        // return res.status(200).json({
-        //     user:{
-        //         id:user.id,
-        //         email:user.email,
-        //         profileSetup: user.profileSetup,
-        //         firstName:user.firstName,
-        //         lastName:user.lastName,
-        //         image:user.image,
-        //         color:user.color,
-                
-        //     }
-        // })
+        const userData = await User.findById(req.userId)
+        if(!userData){
+            return res.status(404).send("User with given id not found");
+        }
+        
+        // console.log("object")
+        // console.log(req.userId)
+        return res.status(200).json({
+           
+                id:userData.id,
+                email:userData.email,
+                profileSetup: userData.profileSetup,
+                firstName:userData.firstName,
+                lastName:userData.lastName,
+                image:userData.image,
+                color:userData.color,
+         })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal Server Error");
+    }
+}
+
+export const UpdateProfile = async (req,res,next) => {
+    try {
+        const {userId} = req;
+        const {firstName , lastName , color} = req.body;
+        if(!firstName || !lastName){
+            return res.status(400).send("FirstName lastname and color is required");
+        }
+        
+        const userData = await User.findByIdAndUpdate(
+            userId , 
+            {
+                firstName,
+                lastName,
+                color,
+                profileSetup:true
+            },
+            {
+                new:true,
+                runValidators:true
+            }
+        )
+
+        return res.status(200).json({
+           
+                id:userData.id,
+                email:userData.email,
+                profileSetup: userData.profileSetup,
+                firstName:userData.firstName,
+                lastName:userData.lastName,
+                image:userData.image,
+                color:userData.color,
+         })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal Server Error");
+    }
+}
+
+export const addProfileImage = async (req,res,next) => {
+    try {
+        const {userId} = req;
+        const {firstName , lastName , color} = req.body;
+        if(!firstName || !lastName){
+            return res.status(400).send("FirstName lastname and color is required");
+        }
+        
+        const userData = await User.findByIdAndUpdate(
+            userId , 
+            {
+                firstName,
+                lastName,
+                color,
+                profileSetup:true
+            },
+            {
+                new:true,
+                runValidators:true
+            }
+        )
+
+        return res.status(200).json({
+           
+                id:userData.id,
+                email:userData.email,
+                profileSetup: userData.profileSetup,
+                firstName:userData.firstName,
+                lastName:userData.lastName,
+                image:userData.image,
+                color:userData.color,
+         })
     } catch (error) {
         console.log(error);
         return res.status(500).send("Internal Server Error");
