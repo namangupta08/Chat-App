@@ -164,6 +164,31 @@ export const UpdateProfile = async (req,res,next) => {
 
 export const addProfileImage = async (req,res,next) => {
     try {
+        if(!req.file){
+            return res.status(400).send("File is required")
+        }
+
+        const date = Date.now();
+
+        
+        return res.status(200).json({
+           
+                id:userData.id,
+                email:userData.email,
+                profileSetup: userData.profileSetup,
+                firstName:userData.firstName,
+                lastName:userData.lastName,
+                image:userData.image,
+                color:userData.color,
+         })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send("Internal Server Error");
+    }
+}
+
+export const removeProfileImage = async (req,res,next) => {
+    try {
         const {userId} = req;
         const {firstName , lastName , color} = req.body;
         if(!firstName || !lastName){
