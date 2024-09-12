@@ -51,39 +51,91 @@ function Auth() {
     return true;
   };
 
+  // const handleLogin = async () => {
+  //   if (validateLogin()) {
+  //     const response = await apiClient.post(
+  //       LOGIN_ROUTE,
+  //       { email, password },
+  //       { withCredentials: true }
+  //     );
+  //     if (response.data.user.id) {
+  //       setUserInfo(response.data.user);
+  //       if (response.data.user.profileSetup) {
+  //         navigate("/chat");
+  //       } else {
+  //         navigate("/profile");
+  //       }
+  //     }
+  //     console.log(response);
+  //   }
+  // };
+
   const handleLogin = async () => {
     if (validateLogin()) {
-      const response = await apiClient.post(
-        LOGIN_ROUTE,
-        { email, password },
-        { withCredentials: true }
-      );
-      if (response.data.user.id) {
-        setUserInfo(response.data.user);
-        if (response.data.user.profileSetup) {
-          navigate("/chat");
+      try {
+        const response = await apiClient.post(
+          LOGIN_ROUTE,
+          { email, password },
+          { withCredentials: true }
+        );
+        console.log("Login Response:", response); // Debug log to inspect response
+  
+        if (response.data?.user?.id) {
+          setUserInfo(response.data.user);
+          if (response.data.user.profileSetup) {
+            navigate("/chat");
+          } else {
+            navigate("/profile");
+          }
         } else {
-          navigate("/profile");
+          toast.error("Invalid login credentials");
         }
+      } catch (error) {
+        console.error("Error during login:", error); // Error log
+        toast.error(error?.response?.data?.message || "Failed to login. Please try again.");
       }
-      console.log(response);
     }
   };
+  
+
+  // const handleSignup = async () => {
+  //   if (validateSignUp()) {
+  //     const response = await apiClient.post(
+  //       SIGNUP_ROUTE,
+  //       { email, password },
+  //       { withCredentials: true }
+  //     );
+  //     if (response.status == 201) {
+  //       setUserInfo(response.data.user);
+  //       navigate("/profile");
+  //     }
+  //     console.log(response);
+  //   }
+  // };
 
   const handleSignup = async () => {
     if (validateSignUp()) {
-      const response = await apiClient.post(
-        SIGNUP_ROUTE,
-        { email, password },
-        { withCredentials: true }
-      );
-      if (response.status == 201) {
-        setUserInfo(response.data.user);
-        navigate("/profile");
+      try {
+        const response = await apiClient.post(
+          SIGNUP_ROUTE,
+          { email, password },
+          { withCredentials: true }
+        );
+        console.log("Signup Response:", response); // Debug log to inspect response
+  
+        if (response.status === 201) {
+          setUserInfo(response.data.user);
+          navigate("/profile");
+        } else {
+          toast.error("Signup failed. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error during signup:", error); // Error log
+        toast.error(error?.response?.data?.message || "Failed to sign up. Please try again.");
       }
-      console.log(response);
     }
   };
+  
 
   return (
     <div className="h-[100vh] w-[100vw] flex justify-center items-center">
