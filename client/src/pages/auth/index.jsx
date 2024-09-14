@@ -2,21 +2,109 @@ import Victory from "@/assets/victory.svg";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import Background from "@/assets/login2.png";
+import { toast } from "sonner";
+import { apiClient } from "@/lib/api-client";
+import { LOGIN_ROUTE, SIGNUP_ROUTE } from "@/utils/constants";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppStore } from "@/store";
 
-const Auth = () => {
+function Auth() {
+  const navigate = useNavigate();
+  const { setUserInfo } = useAppStore();
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [confirmPassword, setconfirmPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const validateLogin = () => {
+    if (!email.length) {
+      toast.error("Email is required");
+      return false;
+    }
+    if (!password.length) {
+      toast.error("Password is required");
+      return false;
+    }
+
+    return true;
+  };
+
+  const validateSignUp = () => {
+    if (!email) {
+      toast.error("Email is required");
+      return false;
+    }
+    if (!password) {
+      toast.error("Password is required");
+      return false;
+    }
+    if (!confirmPassword) {
+      toast.error("Confirm Password is required");
+      return false;
+    }
+    if (password !== confirmPassword) {
+      toast.error("Password and Confirm Password should be the same");
+      return false;
+    }
+    return true;
+  };
 
   const handleLogin = async () => {
+    if (validateLogin()) {
+      try {
+        const response = await apiClient.post(
+          LOGIN_ROUTE,
+          { email, password },
+          { withCredentials: true }
+        );
+        console.log("Login Response:", response);
 
-  }
+        if (response.data?.user?.id) {
+          setUserInfo(response.data.user);
+          if (response.data.user.profileSetup) {
+            navigate("/chat");
+          } else {
+            navigate("/profile");
+          }
+        } else {
+          toast.error("Invalid login credentials");
+        }
+      } catch (error) {
+        console.error("Error during login:", error);
+        toast.error(
+          error?.response?.data?.message || "Failed to login. Please try again."
+        );
+      }
+    }
+  };
 
   const handleSignup = async () => {
+    if (validateSignUp()) {
+      try {
+        const response = await apiClient.post(
+          SIGNUP_ROUTE,
+          { email, password },
+          { withCredentials: true }
+        );
+        console.log("Signup Response:", response);
 
-  }
+        // Uncomment and update if needed
+        if (response.status === 201) {
+          setUserInfo(response.data.user);
+          navigate("/profile");
+        } else {
+          toast.error("Signup failed. Please try again.");
+        }
+      } catch (error) {
+        console.error("Error during signup:", error);
+        toast.error(
+          error?.response?.data?.message ||
+            "Failed to sign up. Please try again."
+        );
+      }
+    }
+  };
 
   return (
     <div className="h-[100vh] w-[100vw] flex justify-center items-center">
@@ -27,7 +115,6 @@ const Auth = () => {
               <h1 className="text-5xl font-bold md:text-6xl">WELCOME</h1>
               <img src={Victory} alt="Victory emoji" className="h-[100px]" />
             </div>
-
             <p className="font-medium text-center">
               Fill in the details to get started with the best chat app
             </p>
@@ -43,10 +130,10 @@ const Auth = () => {
                   Login
                 </TabsTrigger>
                 <TabsTrigger
-                  className="data-[state=active]:bg-transparent text-black text-opacity-90 border-b-2 rounded-none w-full data-[state=active]:text-black data-[state=active]:font-semibold data-[state=active]:border-b-purple-500 p-3 transition-all duration-300"
                   value="signup"
+                  className="data-[state=active]:bg-transparent text-black text-opacity-90 border-b-2 rounded-none w-full data-[state=active]:text-black data-[state=active]:font-semibold data-[state=active]:border-b-purple-500 p-3 transition-all duration-300"
                 >
-                  SignUp
+                  Sign Up
                 </TabsTrigger>
               </TabsList>
 
@@ -58,7 +145,6 @@ const Auth = () => {
                   className="rounded-full p-6"
                   onChange={(e) => setEmail(e.target.value)}
                 />
-
                 <Input
                   value={password}
                   placeholder="Password"
@@ -66,7 +152,6 @@ const Auth = () => {
                   className="rounded-full p-6"
                   onChange={(e) => setPassword(e.target.value)}
                 />
-
                 <Button className="rounded-full p-6" onClick={handleLogin}>
                   Login
                 </Button>
@@ -79,7 +164,6 @@ const Auth = () => {
                   className="rounded-full p-6"
                   onChange={(e) => setEmail(e.target.value)}
                 />
-
                 <Input
                   value={password}
                   placeholder="Password"
@@ -87,15 +171,13 @@ const Auth = () => {
                   className="rounded-full p-6"
                   onChange={(e) => setPassword(e.target.value)}
                 />
-
                 <Input
                   value={confirmPassword}
                   placeholder="Confirm Password"
                   type="password"
                   className="rounded-full p-6"
-                  onChange={(e) => setconfirmPassword(e.target.value)}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                 />
-
                 <Button className="rounded-full p-6" onClick={handleSignup}>
                   Sign Up
                 </Button>
@@ -109,6 +191,6 @@ const Auth = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Auth;
