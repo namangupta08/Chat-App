@@ -1,5 +1,7 @@
 import { useSocket } from "@/context/SocketContext";
+import { apiClient } from "@/lib/api-client";
 import { useAppStore } from "@/store";
+import { UPLOAD_FILE_ROUTE } from "@/utils/constants";
 import EmojiPicker from "emoji-picker-react";
 import { useEffect, useRef, useState } from "react";
 import { GrAttachment } from "react-icons/gr";
@@ -8,9 +10,16 @@ import { RiEmojiStickerLine } from "react-icons/ri";
 
 const MessageBar = () => {
   const emojiRef = useRef();
+  const fileInputRef = useRef();
   const socket = useSocket();
   console.log("Socket in MessageBar:", socket);
-  const { selectedChatType, selectedChatData, userInfo } = useAppStore();
+  const {
+    selectedChatType,
+    selectedChatData,
+    userInfo,
+    setIsUploading,
+    setFileUploadProgress,
+  } = useAppStore();
   const [message, setMessage] = useState("");
   const [emojiPickerOpen, setemojiPickerOpen] = useState(false);
 
@@ -41,6 +50,66 @@ const MessageBar = () => {
         messageType: "text",
         fileUrl: undefined,
       });
+    }else if(selectedChatType === "channel"){
+      socket.emit("send-channel-message" , {
+        sender: userInfo.id,
+        content: message,
+        messageType: "text",
+        fileUrl: undefined,
+        channelId:selectedChatData._id,
+      })
+    }
+    setMessage("");
+  };
+
+  const handleAttachmentClick = async () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleAttachmentChange = async (event) => {
+    try {
+      const file = event.target.files[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        setIsUploading(true);
+        const response = await apiClient.post(
+          UPLOAD_FILE_ROUTE,
+          formData,
+          { withCredentials: true ,
+          onUploadProgress : data => {
+            setFileUploadProgress(Math.round((100*data.loaded)/(data.total)));
+          },
+          }
+        );
+
+        if (response.status === 200 && response.data) {
+          setIsUploading(false);
+          if (selectedChatType === "contact") {
+            socket.emit("sendMessage", {
+              sender: userInfo.id,
+              content: undefined,
+              recipient: selectedChatData._id,
+              messageType: "file",
+              fileUrl: response.data.filePath,
+            });
+          }else if(selectedChatType === "channel"){
+            socket.emit("send-channel-message" , {
+              sender: userInfo.id,
+              content: undefined,
+              messageType: "file",
+              fileUrl: response.data.filePath,
+              channelId:selectedChatData._id,
+            })
+          }
+        }
+      }
+      console.log(file);
+    } catch (error) {
+      setIsUploading(false);
+      console.log(error);
     }
   };
 
@@ -59,10 +128,16 @@ const MessageBar = () => {
         ></input>
         <button
           className=" text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"
-          //onClick={}
+          onClick={handleAttachmentClick}
         >
           <GrAttachment className="text-2xl" />
         </button>
+        <input
+          type="file"
+          className="hidden"
+          ref={fileInputRef}
+          onChange={handleAttachmentChange}
+        />
         <div className="relative">
           <button
             className=" text-neutral-500 focus:border-none focus:outline-none focus:text-white duration-300 transition-all"

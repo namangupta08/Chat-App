@@ -4,10 +4,10 @@ import { AvatarImage } from "@radix-ui/react-avatar";
 import { HOST } from "@/utils/constants";
 import { getColor } from "@/lib/utils";
 
+// eslint-disable-next-line react/prop-types
 const ContactList = ({ contacts, isChannel = false }) => {
   const {
     selectedChatData,
-    selectedChatType,
     setSelectedChatType,
     setSelectedChatData,
     setSelectedChatMessages,
@@ -25,9 +25,12 @@ const ContactList = ({ contacts, isChannel = false }) => {
       setSelectedChatMessages([]);
     }
   };
+  
   return (
     <div className="mt-5">
-      {contacts.map((contact) => (
+      
+      {// eslint-disable-next-line react/prop-types
+        contacts.map((contact) => (
         <div
           key={contact._id}
           className={` pl-10 py-2 transition-all duration-300 cursor-pointer ${
@@ -75,7 +78,7 @@ const ContactList = ({ contacts, isChannel = false }) => {
             {isChannel ? (
               <span>{contact.name}</span>
             ) : (
-              <span>{`${contact.firstName} ${contact.lastName}`}</span>
+              <span>{contact.firstName ? `${contact.firstName} ${contact.lastName}` : contact.email}</span>
             )}
           </div>
         </div>
