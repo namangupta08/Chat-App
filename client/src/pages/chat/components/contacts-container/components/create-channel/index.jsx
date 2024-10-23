@@ -25,7 +25,9 @@ import {
 import { apiClient } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 //import MultipleSelector from "@/components/ui/multipleSelect";
-import MultipleSelector from 'components/ui/multipleselect';
+// import MultipleSelector from 'components/ui/multipleselect';
+import MultipleSelector from "@/components/ui/multipleselect";
+
 
 
 const CreateChannel = () => {
