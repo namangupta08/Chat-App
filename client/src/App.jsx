@@ -7,18 +7,17 @@ import { useEffect, useState } from "react";
 import { apiClient } from "./lib/api-client";
 import { GET_USER_INFO } from "./utils/constants";
 
-
 const PrivateRoute = ({ children }) => {
-    const { userInfo } = useAppStore();
-    const isAuthenticated = !!userInfo;
-    return isAuthenticated ? children : <Navigate to="/auth" />;
-  };
+  const { userInfo } = useAppStore();
+  const isAuthenticated = !!userInfo;
+  return isAuthenticated ? children : <Navigate to="/auth" />;
+};
 
-  const AuthRoute = ({ children }) => {
-    const { userInfo } = useAppStore();
-    const isAuthenticated = !!userInfo;
-    return isAuthenticated ? <Navigate to="/chat" /> : children;
-  };
+const AuthRoute = ({ children }) => {
+  const { userInfo } = useAppStore();
+  const isAuthenticated = !!userInfo;
+  return isAuthenticated ? <Navigate to="/chat" /> : children;
+};
 
 const App = () => {
   const { userInfo, setUserInfo } = useAppStore();
@@ -27,7 +26,9 @@ const App = () => {
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const response = await apiClient.get(GET_USER_INFO , {withCredentials:true});
+        const response = await apiClient.get(GET_USER_INFO, {
+          withCredentials: true,
+        });
         //console.log("App.jsx response => " , response)
 
         if (response.status === 200 && response.data.id) {
@@ -36,20 +37,19 @@ const App = () => {
           setUserInfo(undefined);
         }
         console.log({ response });
-        
       } catch (error) {
         console.log(error);
         setUserInfo(undefined);
       } finally {
         setLoading(false);
       }
-    }
+    };
     if (!userInfo) {
       getUserData();
     } else {
       setLoading(false);
     }
-  } , [userInfo, setUserInfo])
+  }, [userInfo, setUserInfo]);
 
   if (loading) {
     return <div>loading...</div>;
