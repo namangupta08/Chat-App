@@ -1,4 +1,5 @@
-import { genSalt, hash } from "bcrypt";
+import bcrypt from 'bcryptjs'; 
+const { compare, hash, genSalt } = bcrypt;
 import mongoose from "mongoose";
 
 
