@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { apiClient } from "./lib/api-client";
 import { GET_USER_INFO } from "./utils/constants";
 
-
 const PrivateRoute = ({ children }) => {
   const { userInfo } = useAppStore();
   const isAuthenticated = !!userInfo;
