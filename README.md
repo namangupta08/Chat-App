@@ -23,10 +23,6 @@
 - **MongoDB**: NoSQL database for storing user data and chat history, ensuring scalability and flexibility.
 - **JWT (JSON Web Token)**: Secure user authentication and authorization.
 
-### **Deployment**
-- **Frontend**: Deployed on **Vercel**, providing fast, global deployment and automatic scaling.
-- **Backend**: Hosted on **Render**, offering a flexible, scalable backend infrastructure with continuous deployment.
-
 ## 🚀 Deployment  
 - **Vercel**: A modern platform for deploying and hosting the frontend of ChatX, providing seamless integration with GitHub for automatic updates and ensuring global scalability with minimal configuration.  
 - **Render**: A reliable and scalable backend hosting solution for ChatX, offering continuous deployment, ensuring that every API update is live instantly, and maintaining robust performance for real-time chat functionality.
